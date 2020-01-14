@@ -7,7 +7,9 @@ void rgba_to_rgb(
   std::vector<unsigned char> & rgb)
 {
   rgb.resize(height*width*3);
-  ////////////////////////////////////////////////////////////////////////////
-  // Add your code here
-  ////////////////////////////////////////////////////////////////////////////
+  for (int i=0, j=0; i<rgba.size(); ++i) {
+    if ((i+1)%4 == 0)
+      continue;
+    rgb[j++] = rgba[i];
+  }
 }
