@@ -9,6 +9,7 @@ void reflect(
 {
   reflected.resize(width*height*num_channels);
   for (size_t row = 0; row < height; ++row) {
+    // Flip leftmost and rightmost pixel and repeat inwards
     int left = 0, right = width - 1;
     while (left <= right) {
       for (size_t color = 0; color < num_channels; ++color) {

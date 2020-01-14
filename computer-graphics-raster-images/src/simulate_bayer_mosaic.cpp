@@ -8,11 +8,12 @@ void simulate_bayer_mosaic(
 {
   bayer.resize(width*height);
   for (int row = 0; row < height; ++row) {
-    int offset = row % 2 ? 0 : 1;
+    int offset = row % 2 ? 0 : 1; // Add 1 for even rows
     for (int col = 0; col < width; ++col) {
-      int index = 3 * (width * row + col);
-      int channel = offset + (col % 2);
-      bayer[width * row + col] = rgb[index + channel];
+      int index = width * row + col;  // Bayer index
+      int channel = offset + (col % 2);   // The color channel for the bayer pixel
+      // Simply copy the channel value from the rgb pixel to the bayer pixel
+      bayer[index] = rgb[3 * index + channel];
     }
   }
 }

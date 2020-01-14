@@ -9,9 +9,9 @@ void rotate(
 {
   rotated.resize(height*width*num_channels);
   for (int row = 0; row < height; ++row) {
-    int rotated_col = row;
+    int rotated_col = row;  // Column index of rotated image is row index of input image
     for (int col = width-1; col >= 0; --col) {
-      int rotated_row = width - col - 1;
+      int rotated_row = width - col - 1;  // Row index of rotated image is inverted column index of input image
       for (int channel = 0; channel < num_channels; ++channel) {
         rotated[num_channels * (height * rotated_row + rotated_col) + channel] 
           = input[num_channels * (width * row + col) + channel];

@@ -9,7 +9,7 @@ void rgba_to_rgb(
   rgb.resize(height*width*3);
   for (int i=0, j=0; i<rgba.size(); ++i) {
     if ((i+1)%4 == 0)
-      continue;
-    rgb[j++] = rgba[i];
+      continue; // Skip alpha channel
+    rgb[j++] = rgba[i]; // Copy color channel
   }
 }

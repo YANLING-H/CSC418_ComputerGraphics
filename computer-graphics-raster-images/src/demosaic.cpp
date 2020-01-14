@@ -10,8 +10,10 @@ void demosaic(
   for (int row = 0; row < height; ++row) {
     int offset = row % 2 ? 0 : 1;
     for (int col = 0; col < width; ++col) {
-      int index = width * row + col;
-      int channel = offset + (col % 2);
+      int index = width * row + col;      // Index in mosaic
+      int channel = offset + (col % 2);   // Color channel of mosaic pixel
+
+      // Get indexes of 8 neighbouring pixels
       int top_left = index - (width + 1),
           top = index - width,
           top_right = index - (width - 1),
@@ -23,16 +25,16 @@ void demosaic(
       
       int r, g, b;
 
-      // get value for r
+      // Get value for r
       if (channel == 0) {
-        // red channel. Just take value.
+        // Red channel. Just take value.
         r = bayer[index];
       } else if (channel == 1) {
         // Green channel
         r = 0;
         int count = 0;
         if (row % 2 == 0) {
-          // red is vertically up and down
+          // Red is vertically up and down
           if (row > 0) {
             r += bayer[top];
             count++;
@@ -45,7 +47,7 @@ void demosaic(
           if (count > 0)
             r /= count;
         } else {
-          // red is horizontally left and right
+          // Red is horizontally left and right
           if (col > 0) {
             r += bayer[left];
             count++;
@@ -83,12 +85,12 @@ void demosaic(
           r /= count;
       }
 
-      // get value for g
+      // Get value for g
       if (channel == 1) {
-        // green channel. Just take value.
+        // Green channel. Just take value.
         g = bayer[index];
       } else {
-        // red or blue channel. green is on four sides
+        // Red or Blue channel. Green is on four sides
         g = 0;
         int count = 0;
         if (row > 0) {
@@ -112,16 +114,16 @@ void demosaic(
           g /= count;
       }
 
-      // get value for b
+      // Get value for b
       if (channel == 2) {
-        // blue channel. Just take value.
+        // Blue channel. Just take value.
         b = bayer[index];
       } else if (channel == 1) {
         // Green channel
         b = 0;
         int count = 0;
         if (row % 2 == 1) {
-          // blue is vertically up and down
+          // Blue is vertically up and down
           if (row > 0) {
             b += bayer[top];
             count++;
@@ -134,7 +136,7 @@ void demosaic(
           if (count > 0)
             b /= count;
         } else {
-          // blue is horizontally left and right
+          // Blue is horizontally left and right
           if (col > 0) {
             b += bayer[left];
             count++;
@@ -148,7 +150,7 @@ void demosaic(
             b /= count;
         }
       } else {
-        // red channel. blue is in four corners.
+        // Red channel. Blue is in four corners.
         b = 0;
         int count = 0;
         if (row > 0 && col > 0) {
@@ -172,7 +174,7 @@ void demosaic(
           b /= count;
       }
 
-      // Got all values
+      // Got all values. Put in output array.
       rgb[3 * index] = r;
       rgb[3 * index + 1] = g;
       rgb[3 * index + 2] = b;
