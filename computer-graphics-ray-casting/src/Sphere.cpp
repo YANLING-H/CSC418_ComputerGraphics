@@ -14,12 +14,12 @@ bool Sphere::intersect(
     return false;
   t = (-1 * b - sqrt(d)) / (2.0 * a);
   if (t >= min_t) {
-    n = ray.origin + t * ray.direction - this->center;
+    n = (ray.origin + t * ray.direction - this->center).normalized();
     return true;
   }
   t = (-1 * b + sqrt(d)) / (2.0 * a);
   if (t >= min_t) {
-    n = ray.origin + t * ray.direction - this->center;
+    n = (ray.origin + t * ray.direction - this->center).normalized();
     return true;
   }
   return false;

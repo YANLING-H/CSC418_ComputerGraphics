@@ -10,7 +10,7 @@ bool Plane::intersect(
   double numer = this->normal.dot(this->point) - this->normal.dot(ray.origin);
   t = numer / denom;
   if (t >= min_t) {
-    n = this->normal;
+    n = this->normal.normalized();
     return true;
   }
   return false;
