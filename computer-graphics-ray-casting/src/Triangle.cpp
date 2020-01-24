@@ -11,8 +11,6 @@ bool Triangle::intersect(
   Eigen::Vector3d t1 = std::get<1>(this->corners) - c; 
   Eigen::Vector3d t2 = std::get<2>(this->corners) - c;
 
-  Eigen::Vector3d rhs = ray.origin - c;   // Right hand side of equation
-
   Eigen::Matrix3d m;
   m << t1, t2, -1 * ray.direction;
 
