@@ -3,6 +3,8 @@
 #include "blinn_phong_shading.h"
 #include "reflect.h"
 
+#define MAX_DEPTH 2
+
 bool raycolor(
   const Ray & ray, 
   const double min_t,
@@ -11,9 +13,21 @@ bool raycolor(
   const int num_recursive_calls,
   Eigen::Vector3d & rgb)
 {
-  ////////////////////////////////////////////////////////////////////////////
-  // Replace with your code here:
   rgb = Eigen::Vector3d(0,0,0);
+  bool hit;
+  int hit_id;
+  double t;
+  Eigen::Vector3d n;
+  if (first_hit(ray, min_t, objects, hit_id, t, n)) {
+    rgb = blinn_phong_shading(ray, hit_id, t, n, objects, lights);
+    if (num_recursive_calls < MAX_DEPTH) {
+      Ray reflected_ray = ray;
+      reflected_ray.direction = reflect(ray.direction, n);
+      Eigen::Vector3d color;
+      if (raycolor(ray, min_t, objects, lights, num_recursive_calls+1, color))
+        rgb += color;
+    }
+    return true;
+  }
   return false;
-  ////////////////////////////////////////////////////////////////////////////
 }
