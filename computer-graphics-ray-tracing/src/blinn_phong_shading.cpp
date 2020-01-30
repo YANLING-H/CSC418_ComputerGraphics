@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #define AMBIENT_INTENSITY 0.1
-#define OFFSET 0.1
+#define OFFSET 1e-5
 
 Eigen::Vector3d blinn_phong_shading(
   const Ray & ray,
