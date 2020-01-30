@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #define AMBIENT_INTENSITY 0.1
-#define OFFSET 1e-5
+#define FUDGE_FACTOR 1e-6
 
 Eigen::Vector3d blinn_phong_shading(
   const Ray & ray,
@@ -30,7 +30,7 @@ Eigen::Vector3d blinn_phong_shading(
 
   for (int i = 0; i < lights.size(); ++i) {
     lights[i]->direction(ray_to_light.origin, ray_to_light.direction, max_t);
-    if (first_hit(ray_to_light, OFFSET, objects, new_hit_id, new_t, new_n) && new_t < max_t) {
+    if (first_hit(ray_to_light, FUDGE_FACTOR, objects, new_hit_id, new_t, new_n) && new_t < max_t) {
       // Object is in shadow from this light
       continue;
     }
