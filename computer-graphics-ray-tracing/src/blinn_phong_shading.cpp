@@ -23,7 +23,10 @@ Eigen::Vector3d blinn_phong_shading(
   double new_t;
   Eigen::Vector3d new_n;
 
-  Eigen::Vector3d L = Eigen::Vector3d(0,0,0);   // Light Intensity
+  Eigen::Vector3d rgb = Eigen::Vector3d(0,0,0);   // Color Vector
+
+  // Add ambient Light:
+  rgb += AMBIENT_INTENSITY * objects[hit_id]->material->ka;
 
   for (int i = 0; i < lights.size(); ++i) {
     lights[i]->direction(ray_to_light.origin, ray_to_light.direction, max_t);
@@ -33,9 +36,6 @@ Eigen::Vector3d blinn_phong_shading(
     }
     // Object gets light from this light source
 
-    // Ambient Light:
-    Eigen::Vector3d ambient = AMBIENT_INTENSITY * objects[hit_id]->material->ka;
-
     // Lambertian Light:
     Eigen::Vector3d lambertian = (std::max(0.0, n.dot(ray_to_light.direction)) * objects[hit_id]->material->kd);
 
@@ -43,17 +43,13 @@ Eigen::Vector3d blinn_phong_shading(
     Eigen::Vector3d h = ((-1 * ray.direction) + ray_to_light.direction).normalized();
     Eigen::Vector3d specular = pow(std::max(0.0, n.dot(h)), objects[hit_id]->material->phong_exponent) * objects[hit_id]->material->ks;
 
-    // Add up the lights to current intensity
-    L += ambient + lambertian + specular;
+    // Add up the color intensities to current intensity
+    rgb += ((lambertian + specular).array() * lights[i]->I.array()).matrix();
 
   }
 
-  // Clip L to max of 1.0
-  L = L.cwiseMin(1.0);
-
-  // Multiply color with light intensity
-  Eigen::Vector3d rgb = Eigen::Vector3d(255, 255, 255);
-  rgb = (rgb.array() * L.array()).matrix();
+  // Clip rgb to max of 1.0
+  rgb = rgb.cwiseMin(1.0);
 
   // Return resultant rgb
   return rgb;

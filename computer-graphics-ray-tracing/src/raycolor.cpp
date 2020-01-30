@@ -4,7 +4,7 @@
 #include "reflect.h"
 
 #define OFFSET 1e-4
-#define MAX_DEPTH 2
+#define MAX_DEPTH 5
 
 bool raycolor(
   const Ray & ray, 
