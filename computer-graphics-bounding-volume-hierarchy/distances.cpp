@@ -81,6 +81,6 @@ int main(int argc, char * argv[])
     WARN_IF_NOT_EQUAL(bf_I,tree_I,i);
     WARN_IF_NOT_APPROX(bf_sqrD,tree_sqrD,i);
   }
-  visualize_aabbtree(points,root);
+  //visualize_aabbtree(points,root);
   
 }
