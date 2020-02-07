@@ -9,11 +9,13 @@ bool ray_intersect_box(
   const double max_t)
 {
   double tmin, tmax;
-  double max = std::numeric_limits<double>::infinity(), min = -std::numeric_limits<double>::infinity();
+  double max = -std::numeric_limits<double>::infinity(), min = std::numeric_limits<double>::infinity();
   for (int i=0; i<3; ++i) {
     if (ray.direction[i] == 0) {
       tmin = -std::numeric_limits<double>::infinity();
       tmax = std::numeric_limits<double>::infinity();
+      if (ray.origin[i] < box.min_corner[i] || ray.origin[i] > box.max_corner[i])
+        return false;
     } else if (ray.direction[i] > 0) {
       tmin = (box.min_corner[i] - ray.origin[i]) / ray.direction[i];
       tmax = (box.max_corner[i] - ray.origin[i]) / ray.direction[i];

@@ -17,6 +17,7 @@ bool ray_intersect_triangle_mesh_brute_force(
   double t = 0.0;
   for (int i=0; i < F.rows(); ++i) {
     if (ray_intersect_triangle(ray, V.row(F(i,0)), V.row(F(i,1)), V.row(F(i,2)), min_t, max_t, t) && t < closest_hit) {
+      closest_hit = t;
       hit_t = t;
       hit_f = i;
       hit_found = true;

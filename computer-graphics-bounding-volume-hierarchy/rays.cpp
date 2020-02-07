@@ -106,5 +106,5 @@ int main(int argc, char * argv[])
   }
 
   // Visualize the tree
-  visualize_aabbtree(V,F,root);
+  //visualize_aabbtree(V,F,root);
 }
