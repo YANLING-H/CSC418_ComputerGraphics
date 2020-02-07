@@ -10,8 +10,9 @@ void nearest_neighbor_brute_force(
   I = -1;
   sqrD = std::numeric_limits<double>::infinity();
   for (int i=0; i<points.rows(); ++i) {
-    double d2 = (points.row(i) - query).squaredNorm();
+    double d2 = (points.row(i) - query).squaredNorm();  // Squared distance
     if (d2 < sqrD) {
+      // Update smallest squared distance
       sqrD = d2;
       I = i;
     }

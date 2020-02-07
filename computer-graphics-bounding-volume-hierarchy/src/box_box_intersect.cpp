@@ -5,8 +5,10 @@ bool box_box_intersect(
 {
   for (int i=0; i<3; ++i) {
     if (A.min_corner[i] > B.max_corner[i] || B.min_corner[i] > A.max_corner[i])
-      return false;
+      return false; // Boxes dont intersect because it doesn't intersect on the current axis i.
   }
+
+  // Boxes intersect on all axes.
   return true;
 }
 

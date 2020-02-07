@@ -13,15 +13,17 @@ bool ray_intersect_triangle_mesh_brute_force(
   int & hit_f)
 {
   bool hit_found = false;
-  double closest_hit = std::numeric_limits<double>::infinity();
-  double t = 0.0;
+  hit_t = std::numeric_limits<double>::infinity();  // Initialize closest hit as infinity
+  double t = 0.0; // Capture t value of hit
   for (int i=0; i < F.rows(); ++i) {
-    if (ray_intersect_triangle(ray, V.row(F(i,0)), V.row(F(i,1)), V.row(F(i,2)), min_t, max_t, t) && t < closest_hit) {
-      closest_hit = t;
+    if (ray_intersect_triangle(ray, V.row(F(i,0)), V.row(F(i,1)), V.row(F(i,2)), min_t, max_t, t) && t < hit_t) {
+      // Found new closest hit
       hit_t = t;
       hit_f = i;
       hit_found = true;
     }
   }
+
+  // Return whether any hit was found
   return hit_found;
 }

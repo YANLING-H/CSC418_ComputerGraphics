@@ -20,9 +20,10 @@ bool triangle_triangle_intersection(
 
   double min_t = 0.0, max_t = 1.0, t;
 
+  // Edges of the triangle. Initialize as edges of triangle A
   Ray e1(A0, A1 - A0), e2(A0, A2 - A0), e3(A1, A2 - A1);
 
-  // Does Triangle A intersect Triange B
+  // Does any of Triangle A's edges intersect Triangle B
   if (ray_intersect_triangle(e1, B0, B1, B2, min_t, max_t, t))
     return true;
   if (ray_intersect_triangle(e2, B0, B1, B2, min_t, max_t, t))
@@ -30,6 +31,9 @@ bool triangle_triangle_intersection(
   if (ray_intersect_triangle(e3, B0, B1, B2, min_t, max_t, t))
     return true;
 
+  // Triangle A edges do not intersect with triangle B.
+
+  // Update edge variables to be edges of triangle B
   e1.origin = B0;
   e1.direction = B1 - B0;
   e2.origin = B0;
@@ -37,7 +41,7 @@ bool triangle_triangle_intersection(
   e3.origin = B1;
   e3.direction = B2 - B1;
   
-  // Does Triangle B intersect Triange A
+  // Does any of Triangle B's edges intersect Triangle A
   if (ray_intersect_triangle(e1, A0, A1, A2, min_t, max_t, t))
     return true;
   if (ray_intersect_triangle(e2, A0, A1, A2, min_t, max_t, t))
@@ -45,5 +49,6 @@ bool triangle_triangle_intersection(
   if (ray_intersect_triangle(e3, A0, A1, A2, min_t, max_t, t))
     return true;
 
+  // Neither triangles' edges intersect the other triangle
   return false; 
 }

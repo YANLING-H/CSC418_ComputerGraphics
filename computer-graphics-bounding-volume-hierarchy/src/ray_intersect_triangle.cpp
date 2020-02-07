@@ -10,6 +10,9 @@ bool ray_intersect_triangle(
   const double max_t,
   double & t)
 {
+  // Transpose vectors to transform problem to
+  // the same one as solved for ray-triangle intersections
+  // in previous labs
   Eigen::Vector3d c = A.transpose();       // Take first point as join point of triangle
   // The two arms of the triangle
   Eigen::Vector3d t1 = B.transpose() - c; 
