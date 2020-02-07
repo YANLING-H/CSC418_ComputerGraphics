@@ -8,12 +8,6 @@ AABBTree::AABBTree(
   depth(std::move(a_depth)), 
   num_leaves(objects.size())
 {
-  /*this->box.min_corner[0] = std::numeric_limits<double>::infinity();
-  this->box.min_corner[1] = std::numeric_limits<double>::infinity();
-  this->box.min_corner[2] = std::numeric_limits<double>::infinity();
-  this->box.max_corner[0] = -std::numeric_limits<double>::infinity();
-  this->box.max_corner[1] = -std::numeric_limits<double>::infinity();
-  this->box.max_corner[2] = -std::numeric_limits<double>::infinity();*/
   if (num_leaves <= 2) {
     this->left = objects[0];
     insert_box_into_box(objects[0]->box, this->box);
@@ -34,14 +28,6 @@ AABBTree::AABBTree(
           axis_max[i] = max;
       }
     }
-
-    /*this->box.min_corner[0] = axis_min[0];
-    this->box.min_corner[1] = axis_min[1];
-    this->box.min_corner[2] = axis_min[2];
-
-    this->box.max_corner[0] = axis_max[0];
-    this->box.max_corner[1] = axis_max[1];
-    this->box.max_corner[2] = axis_max[2];*/
 
     int axis = 0;
     for (int i=1; i<3; ++i) {

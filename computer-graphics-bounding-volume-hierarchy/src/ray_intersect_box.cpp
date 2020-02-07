@@ -9,7 +9,7 @@ bool ray_intersect_box(
   const double max_t)
 {
   double tmin, tmax;
-  double max = -std::numeric_limits<double>::infinity(), min = std::numeric_limits<double>::infinity();
+  double interval_start = -std::numeric_limits<double>::infinity(), interval_end = std::numeric_limits<double>::infinity();
   for (int i=0; i<3; ++i) {
     if (ray.direction[i] == 0) {
       tmin = -std::numeric_limits<double>::infinity();
@@ -23,11 +23,11 @@ bool ray_intersect_box(
       tmin = (box.max_corner[i] - ray.origin[i]) / ray.direction[i];
       tmax = (box.min_corner[i] - ray.origin[i]) / ray.direction[i];
     }
-    if (tmin > max)
-      max = tmin;
-    if (tmax < min)
-      min = tmax;
+    if (tmin > interval_start)
+      interval_start = tmin;
+    if (tmax < interval_end)
+      interval_end = tmax;
   }
 
-  return max > min_t && min < max_t && max > min;
+  return interval_end > min_t && interval_start < max_t && interval_end > interval_start;
 }
