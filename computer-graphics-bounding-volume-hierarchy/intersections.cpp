@@ -85,6 +85,7 @@ int main(int argc, char * argv[])
     leaf_pairs;
   // Broad phase
   find_all_intersecting_pairs_using_AABBTrees(rootA,rootB,leaf_pairs);
+  std::cout << "function found " << leaf_pairs.size() << " pairs" << std::endl;
   for(const auto & pair : leaf_pairs)
   {
     std::shared_ptr<MeshTriangle> triangleA =
@@ -108,9 +109,12 @@ int main(int argc, char * argv[])
   std::cout<<"  | use trees   | " << FLOAT15 << toc() << " |"<<std::endl;
   std::cout<<std::endl;
 
+  std::cout << "After cleaning, function found " << tree_pairs.size() << " pairs" << std::endl;
+  std::cout << "Brute force found " << bf_pairs.size() << " pairs" << std::endl;
+
   // See if lists match
   diff_and_warn(  bf_pairs,"brute force",tree_pairs,"tree");
   diff_and_warn(tree_pairs,"tree",       bf_pairs,  "brute force");
 
-  visualize_aabbtree(VA,FA,VB,FB,leaf_pairs);
+  //visualize_aabbtree(VA,FA,VB,FB,leaf_pairs);
 }
