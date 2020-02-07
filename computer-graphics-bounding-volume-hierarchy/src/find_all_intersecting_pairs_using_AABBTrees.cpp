@@ -39,7 +39,7 @@ void find_all_intersecting_pairs_using_AABBTrees(
         queue.push_back(std::make_pair(nodeA->left, nodeB->right));
       if (nodeA->right && nodeB->left && box_box_intersect(nodeA->right->box, nodeB->left->box))
         queue.push_back(std::make_pair(nodeA->right, nodeB->left));
-      if (nodeA->right && nodeB->right && box_box_intersect(nodeA->right->box, nodeB->left->box))
+      if (nodeA->right && nodeB->right && box_box_intersect(nodeA->right->box, nodeB->right->box))
         queue.push_back(std::make_pair(nodeA->right, nodeB->right));
     }
   }
