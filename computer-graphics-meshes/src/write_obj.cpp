@@ -29,7 +29,7 @@ bool write_obj(
 
   // Write all texture coordinates
   for (int i=0; i<UV.rows(); ++i) {
-    obj << "vt " << UV(i, 0) << " " << UV(i, 1) << " " << UV(i, 2) << std::endl;
+    obj << "vt " << UV(i, 0) << " " << UV(i, 1) << std::endl;
   }
 
   // Write all normals
