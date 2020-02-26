@@ -6,8 +6,11 @@ uniform bool is_moon;
 out vec3 color;
 void main()
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Replace with your code:
-  color = vec3(1,1,1);
-  /////////////////////////////////////////////////////////////////////////////
+  vec3 blue = vec3(0.0, 0.0, 1.0);
+  vec3 gray = vec3(0.2, 0.2, 0.2);
+  
+  if (is_moon)
+    color = gray;
+  else
+    color = blue;
 }

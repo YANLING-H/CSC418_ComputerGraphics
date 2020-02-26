@@ -9,8 +9,8 @@
 // expects: identity, rotate_about_y, translate, PI
 mat4 model(bool is_moon, float time)
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Replace with your code 
-  return identity();
-  /////////////////////////////////////////////////////////////////////////////
+  if (is_moon)
+    return rotate_about_y(mod(time, 4.0) * PI / 2) * translate(vec3(2, 2, 2)) * uniform_scale(0.3);
+  else
+    return identity();
 }
