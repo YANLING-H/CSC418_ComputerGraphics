@@ -18,26 +18,31 @@ void main()
 {
   float light_dist = 4.0;
   float light_orbit_period = 8.0;
+  float theta = -mod(animation_seconds, light_orbit_period) * 2 * M_PI / light_orbit_period;
 
-  vec4 light_pos = vec3(light_dist, light_dist, light_dist, 1.0);
-  vec4 light_transform = rotate_about_y(-mod(animation_seconds, light_orbit_period) * 2 * PI / light_orbit_period);
-  vec4 light = light_transform * light_pos;  
+  vec4 light_pos = vec4(light_dist, light_dist, light_dist, 1.0);
+  mat4 light_transform = mat4(
+  cos(theta), 0, -sin(theta), 0,
+           0, 1,           0, 0,
+  sin(theta), 0,  cos(theta), 0,
+           0, 0,           0, 1);
+  vec4 light = view * light_transform * light_pos;
 
   vec3 ka, kd, ks;
   vec3 n, v, l;
   float p;
 
   if (is_moon) {
-    color = vec3(0.2, 0.2, 0.2);
+    color = vec3(0.6, 0.5, 0.5);
     ka = color * 0.1;
-    kd = color * 0.6;
-    ks = color * 0.2;
+    kd = color * 0.9;
+    ks = vec3(1.0) * 0.4;
     p = 100;
   } else {
-    color = vec3(0.0, 0.0, 1.0);
+    color = vec3(0.2, 0.2, 1.0);
     ka = color * 0.1;
-    kd = color * 0.6;
-    ks = color * 0.8;
+    kd = color * 0.8;
+    ks = vec3(1.0) * 1.0;
     p = 1000;
   }
 
