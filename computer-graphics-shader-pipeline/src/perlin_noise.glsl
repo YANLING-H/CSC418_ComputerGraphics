@@ -8,10 +8,13 @@
 // expects: random_direction, smooth_step
 float perlin_noise( vec3 st) 
 {
+
   /* 
    * Algorithm based on
    * https://flafla2.github.io/2014/08/09/perlinnoise.html
    */
+
+  //return random_direction(st).x;
 
   vec3 base = floor(st);
   vec3 frac = fract(st);
@@ -37,14 +40,22 @@ float perlin_noise( vec3 st)
   vec3 g_x1y1z1 = random_direction(p_x1y1z1);
 
   // Distance vectors (Distance from cube points to query point)
-  vec3 d_x0y0z0 = frac;
-  vec3 d_x1y0z0 = vec3(1 - frac.x, frac.yz);
-  vec3 d_x0y1z0 = vec3(frac.x, 1 - frac.y, frac.z);
-  vec3 d_x1y1z0 = vec3(1 - frac.x, 1 - frac.y, frac.z);
-  vec3 d_x0y0z1 = vec3(frac.xy, 1 - frac.z)
-  vec3 d_x1y0z1 = vec3(1 - frac.x, frac.y, 1 - frac.z);
-  vec3 d_x0y1z1 = vec3(frac.x, 1 - frac.y, 1 - frac.z);
-  vec3 d_x1y1z1 = vec3(1 - frac.x, 1 - frac.y, 1 - frac.z);
+  vec3 d_x0y0z0 = normalize(frac);
+  vec3 d_x1y0z0 = normalize(vec3(1 - frac.x, frac.yz));
+  vec3 d_x0y1z0 = normalize(vec3(frac.x, 1 - frac.y, frac.z));
+  vec3 d_x1y1z0 = normalize(vec3(1 - frac.x, 1 - frac.y, frac.z));
+  vec3 d_x0y0z1 = normalize(vec3(frac.xy, 1 - frac.z));
+  vec3 d_x1y0z1 = normalize(vec3(1 - frac.x, frac.y, 1 - frac.z));
+  vec3 d_x0y1z1 = normalize(vec3(frac.x, 1 - frac.y, 1 - frac.z));
+  vec3 d_x1y1z1 = normalize(vec3(1 - frac.x, 1 - frac.y, 1 - frac.z));
+  /*vec3 d_x0y0z0 = normalize(st - p_x0y0z0);
+  vec3 d_x1y0z0 = normalize(st - p_x1y0z0);
+  vec3 d_x0y1z0 = normalize(st - p_x0y1z0);
+  vec3 d_x1y1z0 = normalize(st - p_x1y1z0);
+  vec3 d_x0y0z1 = normalize(st - p_x0y0z1);
+  vec3 d_x1y0z1 = normalize(st - p_x1y0z1);
+  vec3 d_x0y1z1 = normalize(st - p_x0y1z1);
+  vec3 d_x1y1z1 = normalize(st - p_x1y1z1);*/
 
   // Influence values at each vertex
   float i_x0y0z0 = dot(g_x0y0z0, d_x0y0z0);
@@ -75,6 +86,6 @@ float perlin_noise( vec3 st)
   ip_value = mix(ip_y1, ip_y2, iw.z);
 
   // Value is in range [0, 1], so shift it to range [-0.5, 0.5]
-  return ip_value - 0.5;
+  return ip_value;
 }
 

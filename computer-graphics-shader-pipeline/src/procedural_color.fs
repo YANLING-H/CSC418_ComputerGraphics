@@ -20,34 +20,37 @@ void main()
   // Copy from lit.fs
   float light_dist = 4.0;
   float light_orbit_period = 8.0;
+  float theta = -mod(animation_seconds, light_orbit_period) * 2 * M_PI / light_orbit_period;
 
-  vec4 light_pos = vec3(light_dist, light_dist, light_dist, 1.0);
-  vec4 light_transform = rotate_about_y(-mod(animation_seconds, light_orbit_period) * 2 * PI / light_orbit_period);
-  vec4 light = light_transform * light_pos;  
+  vec4 light_pos = vec4(light_dist, light_dist, light_dist, 1.0);
+  mat4 light_transform = mat4(
+  cos(theta), 0, -sin(theta), 0,
+           0, 1,           0, 0,
+  sin(theta), 0,  cos(theta), 0,
+           0, 0,           0, 1);
+  vec4 light = view * light_transform * light_pos;  
 
   vec3 ka, kd, ks;
   vec3 n, v, l;
   float p;
 
   // Generate noise
-  float noise1 = 0.25 * perlin_noise(sphere_fs_in);
-  float noise2 = 0.5 * perlin_noise(vec3(normal_fs_in.x, sphere_fs_in.y * cos(normal_fs_in.y), sin(sphere_fs_in.z)));
-  float noise3 = 0.35 * perlin_noise(7 * random_direction(vec3(sphere_fs_in.x + normal_fs_in.y, sin(normal_fs_in.y) + sphere_fs_in.z, random_direction(normal_fs_in + sphere_fs_in).z)));
-  float noise4 = 0.1 * perlin_noise(19 * noise3 * random_direction(light.xyz));
-  float noise5 = 0.15 * perlin_noise(noise2 * noise1 * random_direction(sphere_fs_in-normal_fs_in));
+  float noise1 = perlin_noise(vec3(0.1 * normal_fs_in.x * sphere_fs_in.x, 3.5 * sin(sphere_fs_in.y), 1.5 * cos(sphere_fs_in.x * sphere_fs_in.z)));
+  float noise2 = 2.5 * (sphere_fs_in.y + sphere_fs_in.z + sphere_fs_in.x * perlin_noise(7.5 * vec3(2.0 * sin(sphere_fs_in.y), 1.5 * cos(sphere_fs_in.y), 3.0 * tan(sphere_fs_in.y))));
+  float noise3 = 3.5 * perlin_noise(2.5 * vec3(2.5 * sin(normal_fs_in.x), 7.5 * cos(normal_fs_in.y), 7.5 * tan(normal_fs_in.y / normal_fs_in.x)));
 
-  if (is_moon) {
-    color = vec3(0.25 + noise1, 0.2 + noise4, 0.2 + noise5);
-    ka = color * (0.1 + noise4);
-    kd = color * (0.5 + noise2);
-    ks = color * (0.2 + noise5 / 2.0);
-    p = 100;
+  if (is_moon){
+     color = vec3(0.2 * (1 + clamp(noise2, 0.0, 0.2)) * noise2, 0.2 * noise2, 0.2 * noise2);
+     ka = color * 0.1;
+     kd = color * (0.7 + 0.01 * noise2);
+     ks = vec3(1.0) * (0.4 + 0.01 * noise1);
+     p = 100;
   } else {
-    color = vec3(0.1 + noise4, 0.25 + noise1, 0.6 + noise3);
-    ka = color * (0.1 + noise4);
-    kd = color * (0.6 + noise5);
-    ks = color * (0.7 + noise1);
-    p = 1000;
+     color = vec3(0.01, 0.1 + 0.01 * noise2, 0.1 * noise2 + 1.5 * noise1 + 0.05 * noise3);
+     ka = color * 0.1;
+     kd = color * (0.8 + 0.01 * noise2);
+     ks = vec3(1.0) * (0.7 + noise1);
+     p = 1000;
   }
 
   n = normalize(normal_fs_in);
