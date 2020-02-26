@@ -28,10 +28,10 @@ void main()
   vec4 sphere_h = vec4(normalize(interpolate(gl_TessCoord, pos_es_in[0].xyz, pos_es_in[1].xyz, pos_es_in[2].xyz)), 1.0);
   sphere_fs_in = sphere_h.xyz;
 
-  vec4 model_view_transform = view * model(is_moon, animation_seconds);
+  mat4 model_view_transform = view * model(is_moon, animation_seconds);
   view_pos_fs_in = model_view_transform * sphere_h;
 
-  vec4 normal_transform = transpose(inverse(model_view_transform));
+  mat4 normal_transform = transpose(inverse(model_view_transform));
   normal_fs_in = (normal_transform * sphere_h).xyz;
 
   pos_fs_in = proj * view_pos_fs_in;
