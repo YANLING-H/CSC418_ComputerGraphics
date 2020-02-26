@@ -17,8 +17,42 @@ out vec3 color;
 // expects: blinn_phong, perlin_noise
 void main()
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Replace with your code 
-  color = vec3(1,1,1);
-  /////////////////////////////////////////////////////////////////////////////
+  // Copy from lit.fs
+  float light_dist = 4.0;
+  float light_orbit_period = 8.0;
+
+  vec4 light_pos = vec3(light_dist, light_dist, light_dist, 1.0);
+  vec4 light_transform = rotate_about_y(-mod(animation_seconds, light_orbit_period) * 2 * PI / light_orbit_period);
+  vec4 light = light_transform * light_pos;  
+
+  vec3 ka, kd, ks;
+  vec3 n, v, l;
+  float p;
+
+  // Generate noise
+  float noise1 = 0.25 * perlin_noise(sphere_fs_in);
+  float noise2 = 0.5 * perlin_noise(vec3(normal_fs_in.x, sphere_fs_in.y * cos(pos_fs_in.y), view_pos_fs_in.z));
+  float noise3 = 0.35 * perlin_noise(7 * random_direction(vec3(sphere_fs_in.x + normal_fs_in.y, view_pos_fs_in.y + sphere_fs_in.z, pos_fs_in.z + normal_fs_in.x)));
+  float noise4 = 0.1 * perlin_noise(19 * noise3 * light.xyz);
+  float noise5 = 0.15 * perlin_noise(noise2 * noise1 * sphere_fs_in);
+
+  if (is_moon) {
+    color = vec3(0.25 + noise1, 0.2 + noise4, 0.2 + noise5);
+    ka = color * (0.1 + noise4);
+    kd = color * (0.5 + noise2);
+    ks = color * (0.2 + noise5 / 2.0);
+    p = 100;
+  } else {
+    color = vec3(0.1 + noise4, 0.25 + noise1, 0.6 + noise3);
+    ka = color * (0.1 + noise4);
+    kd = color * (0.6 + noise5);
+    ks = color * (0.7 + noise1);
+    p = 1000;
+  }
+
+  n = normalize(normal_fs_in);
+  v = -normalize(view_pos_fs_in.xyz);
+  l = normalize(light.xyz - view_pos_fs_in.xyz);
+
+  color = blinn_phong(ka, kd, ks, p, n, v, l);
 }
