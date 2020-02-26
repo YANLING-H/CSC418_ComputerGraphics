@@ -20,10 +20,8 @@ vec3 blinn_phong(
   vec3 v,
   vec3 l)
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Replace with your code 
-  return vec3(1,1,1);
-  /////////////////////////////////////////////////////////////////////////////
+  float ambient_intensity = 0.01;
+  return ka * ambient_intensity + kd * max(0.0, dot(n, l)) + ks * pow(max(0.0, dot(n, normalize(v+l))), p);
 }
 
 
