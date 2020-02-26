@@ -74,7 +74,7 @@ float perlin_noise( vec3 st)
   // to get the final perlin noise value
   ip_value = mix(ip_y1, ip_y2, iw.z);
 
-  // Value is in range [0, 1], so shift it to range [-1, 1]
-  return 2 * ip_value - 1;
+  // Value is in range [0, 1], so shift it to range [-0.5, 0.5]
+  return ip_value - 0.5;
 }
 

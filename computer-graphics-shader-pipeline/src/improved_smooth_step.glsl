@@ -8,15 +8,12 @@
 // Returns filtered output value
 float improved_smooth_step( float f)
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Replace with your code 
-  return f;
-  /////////////////////////////////////////////////////////////////////////////
+  /* Using the same mathematical steps as in the original smooth_step,
+   * the polynomial obtained is 6x^5 - 15x^4 + 10x^3
+   */
+   return 6 * pow(f, 5) + 10 * pow(f, 3) - 15 * pow(f, 4);
 }
 vec3 improved_smooth_step( vec3 f)
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Replace with your code 
-  return f;
-  /////////////////////////////////////////////////////////////////////////////
+  return vec3(smooth_step(f.x), smooth_step(f.y), smooth_step(f.z));
 }
