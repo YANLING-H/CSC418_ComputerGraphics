@@ -31,10 +31,10 @@ void main()
 
   // Generate noise
   float noise1 = 0.25 * perlin_noise(sphere_fs_in);
-  float noise2 = 0.5 * perlin_noise(vec3(normal_fs_in.x, sphere_fs_in.y * cos(pos_fs_in.y), view_pos_fs_in.z));
-  float noise3 = 0.35 * perlin_noise(7 * random_direction(vec3(sphere_fs_in.x + normal_fs_in.y, view_pos_fs_in.y + sphere_fs_in.z, pos_fs_in.z + normal_fs_in.x)));
-  float noise4 = 0.1 * perlin_noise(19 * noise3 * light.xyz);
-  float noise5 = 0.15 * perlin_noise(noise2 * noise1 * sphere_fs_in);
+  float noise2 = 0.5 * perlin_noise(vec3(normal_fs_in.x, sphere_fs_in.y * cos(normal_fs_in.y), sin(sphere_fs_in.z)));
+  float noise3 = 0.35 * perlin_noise(7 * random_direction(vec3(sphere_fs_in.x + normal_fs_in.y, sin(normal_fs_in.y) + sphere_fs_in.z, random_direction(normal_fs_in + sphere_fs_in).z)));
+  float noise4 = 0.1 * perlin_noise(19 * noise3 * random_direction(light.xyz));
+  float noise5 = 0.15 * perlin_noise(noise2 * noise1 * random_direction(sphere_fs_in-normal_fs_in));
 
   if (is_moon) {
     color = vec3(0.25 + noise1, 0.2 + noise4, 0.2 + noise5);
