@@ -8,12 +8,17 @@
 //   reasonable.
 float bump_height( bool is_moon, vec3 s)
 {
-  float height;
-  float moon_factor = 0.6;
-
-  height = improved_perlin_noise(s);
+  vec3 object_factor; // Differentiate between earth and moon to give them different appearances
   if (is_moon)
-    height *= moon_factor;
+    object_factor = vec3(9.2, 9.5, 10.1);  // Moon is bumpier than earth
+  else
+    object_factor = vec3(2.7, 2.8, 1.0);
+  float height = improved_perlin_noise(vec3(improved_perlin_noise(object_factor * s)));
 
-  return height;
+  float height_factor;
+  if (is_moon)
+    height_factor = 0.3;
+  else
+    height_factor = 0.1;
+  return height_factor * height;
 }

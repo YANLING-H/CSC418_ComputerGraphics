@@ -8,46 +8,10 @@
 // expects: random_direction, smooth_step
 float perlin_noise( vec3 st) 
 {
-
-
-
-  /*int floor_x = int(floor(st.x));
-  int floor_y = int(floor(st.y));
-  int floor_z = int(floor(st.z));
-  vec3 stepped = smooth_step(st - vec3(floor_x, floor_y, floor_z));
-  float gammas[8];
-  int count = 0;
-  for (int i = floor_x; i <= floor_x + 1; i++){
-    for (int j = floor_y; j <= floor_y + 1; j++){
-      for (int k = floor_z; k <= floor_z + 1; k++){
-        float u = st.x - float(i);
-        float v = st.y - float(j);
-        float w = st.z - float(k);
-        vec3 rand_vec = random_direction(vec3(i, j, k));
-        gammas[count] = dot(rand_vec, vec3(u, v, w));
-        count++;
-      }
-    }
-  }
-  float temp1 = stepped.x * (gammas[4] - gammas[0]) + gammas[0];
-  float temp2 = stepped.x * (gammas[5] - gammas[1]) + gammas[1];
-  float temp3 = stepped.x * (gammas[6] - gammas[2]) + gammas[2];
-  float temp4 = stepped.x * (gammas[7] - gammas[3]) + gammas[3];
-
-  float temp5 = stepped.y * (temp3 - temp1) + temp1;
-  float temp6 = stepped.y * (temp4 - temp2) + temp2;
-  float val = 2 * (stepped.z * (temp6 - temp5) + temp5) / sqrt(3);
-  return val;*/
-
-
-
-
   /* 
    * Algorithm based on
    * https://flafla2.github.io/2014/08/09/perlinnoise.html
    */
-
-  //return random_direction(st).x;
 
   vec3 base = floor(st);
   vec3 top = ceil(st);
@@ -111,7 +75,7 @@ float perlin_noise( vec3 st)
   // to get the final perlin noise value
   ip_value = mix(ip_y1, ip_y2, iw.z);
 
-  // Value is in range [0, 1], so shift it to range [-0.5, 0.5]
+  // Return value adjusted to correct range
   return ip_value / sqrt(3);
 }
 
