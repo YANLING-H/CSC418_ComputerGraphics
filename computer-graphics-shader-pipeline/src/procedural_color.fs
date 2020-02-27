@@ -18,7 +18,7 @@ out vec3 color;
 void main()
 {
   // Copy from lit.fs
-  float light_dist = 4.0;
+  float light_dist = 6.0;
   float light_orbit_period = 8.0;
   float theta = -mod(animation_seconds, light_orbit_period) * 2 * M_PI / light_orbit_period;
 
@@ -28,29 +28,49 @@ void main()
            0, 1,           0, 0,
   sin(theta), 0,  cos(theta), 0,
            0, 0,           0, 1);
-  vec4 light = view * light_transform * light_pos;  
+  vec4 light = view * light_transform * light_pos;
 
-  vec3 ka, kd, ks;
-  vec3 n, v, l;
+  vec3 ka, ks, kd;
   float p;
+  vec3 n, v, l;
 
-  // Generate noise
-  float noise1 = perlin_noise(vec3(0.1 * normal_fs_in.x * sphere_fs_in.x, 3.5 * sin(sphere_fs_in.y), 1.5 * cos(sphere_fs_in.x * sphere_fs_in.z)));
-  float noise2 = 2.5 * (sphere_fs_in.y + sphere_fs_in.z + sphere_fs_in.x * perlin_noise(7.5 * vec3(2.0 * sin(sphere_fs_in.y), 1.5 * cos(sphere_fs_in.y), 3.0 * tan(sphere_fs_in.y))));
-  float noise3 = 3.5 * perlin_noise(2.5 * vec3(2.5 * sin(normal_fs_in.x), 7.5 * cos(normal_fs_in.y), 7.5 * tan(normal_fs_in.y / normal_fs_in.x)));
+  // Generate Noise
 
-  if (is_moon){
-     color = vec3(0.2 * (1 + clamp(noise2, 0.0, 0.2)) * noise2, 0.2 * noise2, 0.2 * noise2);
-     ka = color * 0.1;
-     kd = color * (0.7 + 0.01 * noise2);
-     ks = vec3(1.0) * (0.4 + 0.01 * noise1);
-     p = 100;
-  } else {
-     color = vec3(0.01, 0.1 + 0.01 * noise2, 0.1 * noise2 + 1.5 * noise1 + 0.05 * noise3);
-     ka = color * 0.1;
-     kd = color * (0.8 + 0.01 * noise2);
-     ks = vec3(1.0) * (0.7 + noise1);
-     p = 1000;
+  // Two random vectors to influence seed in perlin noise
+  vec3 v1 = vec3(2.0, 15.0, 10.0);
+  vec3 v2 = vec3(22.0, 18.0, 1.5);
+
+  float object_factor;  // Some value to differentiate earth and moon so they dont have the exact patterns
+  if (is_moon)
+    object_factor = 1.4;
+  else
+    object_factor = 0.9;
+
+  float noise1 = perlin_noise(v1 * object_factor * sphere_fs_in) + 0.1 * perlin_noise(v2 * object_factor *  sphere_fs_in);
+  float noise2 = perlin_noise(v1 * object_factor *  sphere_fs_in) + 0.2 * perlin_noise(v2 * object_factor *  sphere_fs_in);
+  float noise3 = perlin_noise(v1 * object_factor *  sphere_fs_in) + 0.3 * perlin_noise(v2 * object_factor *  sphere_fs_in);
+
+  float noise = object_factor * perlin_noise(object_factor * vec3(noise1, noise2, noise3));
+  float c_noise = perlin_noise((1.0 + object_factor) * sphere_fs_in);
+
+  if (is_moon) {
+    ka = vec3(0.12, 0.1, 0.1);
+    ks = vec3(0.9, 0.9, 0.9);
+    kd = vec3(0.475, 0.4, 0.4);
+    p = 1000;
+  } else{
+    ka = vec3(0.2, 0.3, 0.5);
+    ks = vec3(0.6, 0.7, 0.7);
+    kd = vec3(0.1, 0.3, 0.8);
+    p = 500;
+  }
+
+  // Apply noise to values
+  float noise_factor = 1.0 + object_factor * noise;
+  if (noise_factor != 0) {
+    kd *= noise_factor;
+    ka *= noise_factor;
+    ks *= noise_factor;
   }
 
   n = normalize(normal_fs_in);
@@ -58,4 +78,7 @@ void main()
   l = normalize(light.xyz - view_pos_fs_in.xyz);
 
   color = blinn_phong(ka, kd, ks, p, n, v, l);
+  // Apply noise to color output
+  color *= vec3(1.0 - c_noise);
 }
+

@@ -8,9 +8,13 @@
 // expects: random2.glsl, PI.glsl
 vec3 random_direction( vec3 seed)
 {
-  vec2 rand_x = random2(seed);
-  vec2 rand_y = random2(dot(vec3(rand_x, 1.0), seed) * seed);
-  vec2 rand_z = random2(dot(rand_x, rand_y) * seed);
+  vec2 rand = random2(seed);
+  float theta = 2 * M_PI * rand.x;
+  float phi = M_PI * rand.y;
 
-  return normalize(vec3(rand_x.x, rand_y.y, rand_z.x));
+  float x = sin(phi) * cos(theta);
+  float y = sin(phi) * sin(theta);
+  float z = cos(phi);
+
+  return normalize(vec3(x, y, z));
 }
