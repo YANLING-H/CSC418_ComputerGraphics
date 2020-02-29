@@ -1,9 +1,10 @@
+#include <iostream>
+#include <assert.h>
 #include "catmull_clark.h"
 #include "vertex_triangle_adjacency.h"
 #include <unordered_map>
 #include <utility>
 #include <functional>
-#include <unordered_set>
 
 void catmull_clark(
   const Eigen::MatrixXd & V,
@@ -12,78 +13,68 @@ void catmull_clark(
   Eigen::MatrixXd & SV,
   Eigen::MatrixXi & SF)
 {
-  if (num_iters <= 0)
+  /*
+   * Reference:
+   * https://en.wikipedia.org/wiki/Catmull%E2%80%93Clark_subdivision_surface
+   */
+  if (num_iters == 0)
     return;
 
   // Necessary data structures
-  Eigen::MatrixXi E;    // All edges, identified by indexing vertices
-  Eigen::MatrixXi EF;   // Face to edge index
-  Eigen::MatrixXi FE;   // Edge to face index
-  std::vector<std::vector<int> > VF;    // Vector to face adjacency list
-  std::vector<std::unordered_set<int> > VV;    // Vector to vector adjacency list
+  std::vector<std::pair<int, int>> E;     // All edges
+  std::vector<std::pair<int, int>> FE;    // Faces neighbouring edge
+  std::vector<std::vector<int>> VF;       // Faces neighbouring vertex
+  vertex_triangle_adjacency(F, V.rows(), VF);
 
   std::vector<Eigen::RowVector3d> face_points;
   std::vector<Eigen::RowVector3d> edge_points;
 
-  // Initialize data structures
-  E.resize(V.rows() + F.rows() - 2, 2);   // Euler's Formula
-  EF.resize(F.rows(), 4);
-  FE.resize(E.rows(), 2);
-
-  vertex_triangle_adjacency(F, V.rows(), VF);
-  VV.resize(V.rows());
-
-  // Resize output vectors
-  SV.resize(F.rows() + E.rows()/2 + V.rows(), 3);
-  SF.resize(4 * F.rows(), 4);
+  // Resize outputs to get ready to accept data
+  SV.resize(V.rows() + F.rows() + E.size(), 3);
+  SF.resize(F.rows() * F.cols(), 4);
   int sv_row = 0, sf_row = 0;
 
-  int e_row = 0;
+  // Get all edges in mesh
   for (int i=0; i<F.rows(); ++i) {
-    int ef_col = 0;
-    for (int j=0; j<F.cols(); ++j) {
-      int v0 = j == 0 ? F(i, F.cols()-1) : F(i, j-1);
+    for(int j=0; j<F.cols(); ++j) {
       int v1 = F(i, j);
-      int v2 = F(i, (j+1) % F.cols());
-      auto forward_edge = Eigen::RowVector2i(v1, v2);
-      auto backward_edge = Eigen::RowVector2i(v2, v1);
-
-      VV[v1].insert(v0);
-      VV[v1].insert(v2);
+      int v2 = F(i, (j + 1) % 4);
+      auto forward_edge = std::make_pair(v1, v2);
+      auto backward_edge = std::make_pair(v2, v1);
 
       bool exists = false;
-      for (int k=0; k<e_row; ++k) {
-        if (E.row(k).isApprox(forward_edge) || E.row(k).isApprox(backward_edge)) {
+      for (int k=0; k<E.size(); ++k) {
+        if (E[k] == forward_edge || E[k] == backward_edge) {
           exists = true;
-          FE(k, 1) = i;
-          EF(i, ef_col++) = k;
+          FE[k] = std::make_pair(FE[k].first, i);
           break;
         }
       }
 
-      if (!exists) {
-        E.row(e_row) << forward_edge;
-        EF(i, ef_col++) << e_row;
-        FE(e_row++, 0) = i;
+      if (!exists){
+          E.push_back(forward_edge); 
+          FE.push_back(std::make_pair(i, -1)); 
       }
-    }
+    } 
   }
 
   // For each face, add a face point
+  int face_point_offset = sv_row;
   for (int i=0; i<F.rows(); ++i) {
-    Eigen::RowVector3d avg = Eigen::RowVector3d(0.0, 0.0, 0.0);
+    auto avg = Eigen::RowVector3d(0.0, 0.0, 0.0);
     for (int j=0; j<F.cols(); ++j)
       avg += V.row(F(i, j));
-    avg /= F.cols();
+    avg /= (double) F.cols();
     face_points.push_back(avg);
     SV.row(sv_row++) << avg;
   }
 
   // For each edge, add an edge point
-  for (int i=0; i<E.rows(); i += 2) {
+  int edge_point_offset = sv_row;
+  for (int i=0; i<E.size(); ++i) {
     Eigen::RowVector3d avg = Eigen::RowVector3d(0.0, 0.0, 0.0);
-    avg += V.row(E(i, 0)) + V.row(E(i, 1));
-    avg += face_points[FE(i, 0)] + face_points[FE(i, 1)];
+    avg += V.row(E[i].first) + V.row(E[i].second);
+    avg += face_points[FE[i].first] + face_points[FE[i].second];
     avg /= 4.0;
     edge_points.push_back(avg);
     SV.row(sv_row++) << avg;
@@ -96,6 +87,7 @@ void catmull_clark(
   // each edge midpoint is the average of its two endpoint 
   // vertices (not to be confused with new "edge points" above). 
   // Move each original point to the barycenter
+  int vertex_offset = sv_row;
   for (int i=0; i<V.rows(); ++i) {
     auto adj_faces = VF[i];
     auto f = Eigen::RowVector3d(0.0, 0.0, 0.0);
@@ -104,32 +96,66 @@ void catmull_clark(
     int n = adj_faces.size();
     for (int face:adj_faces)
       f += face_points[face];
-    f /= n;
+    f /= (double) n;
 
-    for (int v:VV[i]) {
+    /*for (int v:VV[i]) {
       auto midpoint = (V.row(v) + p) / 2.0;
       r += midpoint;
+    }*/
+    int num_adj_edges = 0;
+    for (auto edge: E){
+      if (edge.first == i || edge.second == i) {
+        r += (V.row(edge.first) + V.row(edge.second)) / 2.0;
+        ++n;
+      }
     }
-    r /= VV[i].size();
+
+    //r /= VV[i].size();
+    r /= (double) n;
 
     // Barycenter
-    auto barycenter = (f + 2.0 * r + (n - 3.0) * p) / (double) n;
+    auto barycenter = (f + 2.0 * r + ((double) n - 3.0) * p) / (double) n;
     SV.row(sv_row++) << barycenter;
   }
 
   // Define new faces as enclosed by edges
   for (int i=0; i<F.rows(); ++i) {
-    int v1, v2, v3, v4;
-    v1 = i;   // Face point for face
+
+    /*int v1, v2, v3, v4;
+    v3 = i;   // Face point for face
     auto edges = EF.row(i);       // Edge points for face
     for (int j=0; j<F.cols(); ++j) {
       v2 = F.rows() + j == 0 ? edges[edges.cols()-1] : edges[j-1];
       v3 = F.rows() + E.rows() + F(i, j);
       v4 = F.rows() + edges[j];
       SF.row(sf_row++) << v1, v2, v3, v4;
+    }*/
+
+    int v1, v2, v3, v4;
+    v3 = face_point_offset + i;
+    for (int j=0; j<F.cols(); ++j) {
+      v1 = vertex_offset + F(i, j);
+      auto e1_fw = std::make_pair(F(i, j), F(i, (j+1) % F.cols()));
+      auto e1_bw = std::make_pair(e1_fw.second, e1_fw.first);
+
+      auto e2_fw = std::make_pair(F(i, j), F(i, (j+3) % 4));
+      auto e2_bw = std::make_pair(e2_fw.second, e2_fw.first);
+
+      for (int k=0; k<E.size(); ++k) {
+        if (E[k] == e1_fw || E[k] == e1_bw)
+          v2 = k;
+        if (E[k] == e2_fw || E[k] == e2_bw)
+          v4 = k;
+      }
+
+      v2 += edge_point_offset;
+      v4 += edge_point_offset;
+
+      SF.row(sf_row++) << v1, v2, v3, v4;
     }
   }
 
   // Recursive call
-  catmull_clark(SV, F, num_iters - 1, SV, SF);
+  catmull_clark(SV, SF, num_iters - 1, SV, SF);
 }
+
