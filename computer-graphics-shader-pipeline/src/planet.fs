@@ -58,10 +58,11 @@ void main()
   float noise = object_factor * improved_perlin_noise(object_factor * vec3(noise1, noise2, noise3));
   float c_noise = improved_perlin_noise((1.0 + object_factor) * sphere_fs_in);
 
-  float bh = bump_height(is_moon, sphere_fs_in);
-  float shore = 0.009;
-  float boundary = 0.0112;
-  float valley = 0.012;
+  float bh = 0.5 * bump_height(is_moon, sphere_fs_in);
+  float shore = 0.02;
+  float boundary = 0.0312;
+  float valley = 0.038;
+  float max = 0.07;
 
   if (is_moon) {
     ka = vec3(0.12, 0.1, 0.1);
@@ -71,7 +72,7 @@ void main()
   } else{
     if (bh < shore) {
       // Ocean/River
-      float snow_threshold = cos(noise + M_PI / 6);
+      float snow_threshold = cos(noise + M_PI / 4);
       float angle;
       if (sphere_fs_in.y > 0)
         angle = dot(normalize(sphere_fs_in), vec3(0, 1, 0));
@@ -96,10 +97,23 @@ void main()
       p = 1000;
     } else if (bh < valley) {
       // Valley-shore boundary
-      ka = vec3(0.1, 0.9, 0.1);
-      kd = vec3(0.0, 0.4, 0.0);
-      ks = vec3(0.0, 0.2, 0.0);
-      p = 1000;
+      float snow_threshold = cos(noise + M_PI / 4);
+      float angle;
+      if (sphere_fs_in.y > 0)
+        angle = dot(normalize(sphere_fs_in), vec3(0, 1, 0));
+      else
+        angle = dot(normalize(sphere_fs_in), vec3(0, -1, 0));
+      if (angle > snow_threshold) {
+        ka = vec3(0.1, 0.1, 0.1);
+        ks = vec3(0.8, 0.8, 0.8);
+        kd = 10.0 * vec3(mix(0.0, 1.0, improved_smooth_step((bh - valley)/(max - valley))), mix(0.0, 1.0, improved_smooth_step((bh - valley)/(max - valley))), mix(0.2, 1.0, improved_smooth_step((bh - valley)/(max - valley))));
+        p = 100;
+      } else {
+        ka = vec3(0.1, 0.9, 0.1);
+        kd = vec3(0.0, 0.4, 0.0);
+        ks = vec3(0.0, 0.2, 0.0);
+        p = 1000;
+      }
     } else {
       // Land
       float snow_threshold = cos(noise + M_PI / 4);
@@ -111,11 +125,11 @@ void main()
       if (angle > snow_threshold) {
         ka = vec3(0.1, 0.1, 0.1);
         ks = vec3(0.8, 0.8, 0.8);
-        kd = 10.0 * vec3(mix(0.0, 1.0, improved_smooth_step((bh - valley)/(0.05 - valley))), mix(0.0, 1.0, improved_smooth_step((bh - valley)/(0.05 - valley))), mix(0.2, 1.0, improved_smooth_step((bh - valley)/(0.05 - valley))));
+        kd = 10.0 * vec3(mix(0.0, 1.0, improved_smooth_step((bh - valley)/(max - valley))), mix(0.0, 1.0, improved_smooth_step((bh - valley)/(max - valley))), mix(0.2, 1.0, improved_smooth_step((bh - valley)/(max - valley))));
         p = 100;
       } else {
         ka = vec3(0.2, 0.2, 0.1);
-        kd = vec3(mix(0.0, 1.0, improved_smooth_step((bh - valley)/(0.05 - valley))), mix(0.45, 0.8, improved_smooth_step((bh - valley)/(0.05 - valley))), 0.1);
+        kd = vec3(mix(0.1, 1.0, improved_smooth_step((bh - valley)/(max - valley))), mix(0.45, 0.6, improved_smooth_step((bh - valley)/(max - valley))), 0.1);
         //kd = vec3(mix(0.0, 1.0, sin(22.5 * bh)), mix(0.0, 1.0, cos(25.0 * bh)), 0.1);
         ks = vec3(0.2, 0.2, 0.1);
         p = 1000;
@@ -162,16 +176,13 @@ void main()
   // Generate Clouds
   if (!is_moon){
     vec3 seed = 0.1 * vec3(10, 80, 10);
-    float cloud_density = 1.0;
-    float cloud_anim_freq = 10.0;
-    float cloud_anim_incr = 0.05;
-    float cloud_period = 6.0;
+    float cloud_density = 1.5;
+    float cloud_anim_freq = 0.2;
+    float cloud_anim_amplitude = 0.75;
+    float cloud_anim_val = cloud_anim_amplitude * sin(cloud_anim_freq * M_PI * animation_seconds);
+    float cloud_rotation_period = 6.0;
     float cloud_threshold = 0.02;
-    int mod_threshold = 10;
-    int val = int(mod(int(floor(animation_seconds/(1.0/cloud_anim_freq))), 2 * mod_threshold));
-    if (val > mod_threshold)
-      val = val - 2 * (val - mod_threshold);
-    float clouds = 0.2 * improved_perlin_noise((cloud_density + cloud_anim_incr * val) * seed * (rotate_about_y(mod(animation_seconds, cloud_period) * 2 * M_PI / cloud_period) * vec4(sphere_fs_in, 1)).xyz);
+    float clouds = 0.2 * improved_perlin_noise((cloud_density + cloud_anim_val) * seed * (rotate_about_y(mod(animation_seconds, cloud_rotation_period) * 2 * M_PI / cloud_rotation_period) * vec4(sphere_fs_in, 1)).xyz);
     if (clouds > cloud_threshold){
       ka = vec3(1.0) * clouds;
       kd = vec3(1.0) * clouds;
