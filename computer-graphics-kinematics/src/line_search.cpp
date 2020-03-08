@@ -8,8 +8,18 @@ double line_search(
   const Eigen::VectorXd & dz,
   const double max_step)
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Replace with your code
-  return 0;
-  /////////////////////////////////////////////////////////////////////////////
+  double sigma = max_step * 2;
+  double E0 = f(z);
+  if (E0 <= 1e-5 || dz.isZero())
+    return 0.0;
+  double E1;
+
+  do {
+    sigma /= 2;
+    Eigen::VectorXd new_z = z - sigma * dz;
+    proj_z(new_z);
+    E1 = f(new_z);
+  } while (E1 > E0);
+
+  return sigma;
 }

@@ -8,7 +8,12 @@ void projected_gradient_descent(
   const int max_iters,
   Eigen::VectorXd & z)
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Add your code here
-  /////////////////////////////////////////////////////////////////////////////
+  double max_step = 10000.0;
+  for (int iters=0; iters<max_iters; ++iters) {
+    Eigen::VectorXd dz = grad_f(z);
+    if (f(z) <= 1e-5 || dz.isZero())
+      return;
+    z = z - line_search(f, proj_z, z, dz, max_step) * dz;
+    proj_z(z);
+  }
 }

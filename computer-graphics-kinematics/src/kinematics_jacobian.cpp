@@ -7,8 +7,24 @@ void kinematics_jacobian(
   const Eigen::VectorXi & b,
   Eigen::MatrixXd & J)
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Replace with your code
-  J = Eigen::MatrixXd::Zero(b.size()*3,skeleton.size()*3);
-  /////////////////////////////////////////////////////////////////////////////
+  J.resize(b.size()*3,skeleton.size()*3);
+
+  Skeleton copy = skeleton;
+  Eigen::VectorXd tips = transformed_tips(skeleton, b);
+  double h = 1e-7;
+
+  for (int i=0; i<b.rows(); ++i) {
+    auto xi = tips.segment(3*i, 3);
+    Eigen::VectorXi b2(1);
+    b2 << b[i];
+    for (int j=0; j<skeleton.size(); ++j) {
+      for (int theta_i=0; theta_i<3; ++theta_i) {
+        copy[i].xzx[theta_i] += h;
+        auto x_plus_del = transformed_tips(copy, b2);
+        copy[i].xzx = skeleton[j].xzx;
+
+        J.block(i, 3*j + theta_i, 3, 1) << (x_plus_del - xi) / h;
+      }
+    }
+  }
 }
