@@ -3,27 +3,15 @@
 Eigen::Affine3d euler_angles_to_transform(
   const Eigen::Vector3d & xzx)
 {
-  Eigen::Affine3d R, Rx3, Rz, Rx1;
-  double theta1 = xzx[0], theta2 = xzx[1], theta3 = xzx[2];
 
-  Rx1.matrix() << 
-    1,0,0,0,
-    0,cos(theta1),-sin(theta1),0,
-    0,sin(theta1),cos(theta1),0,
-    0,0,0,1;
+  Eigen::AngleAxis<double> Rx3, Rz, Rx1;
+  double theta1 = xzx[0] * M_PI/180.0, 
+         theta2 = xzx[1] * M_PI/180.0, 
+         theta3 = xzx[2] * M_PI/180.0;
 
-  Rz.matrix() << 
-    cos(theta2),-sin(theta2),0,0,
-    sin(theta2),cos(theta2),0,0,
-    0,0,1,0,
-    0,0,0,1;
+  Rx1 = Eigen::AngleAxis<double>(theta1, Eigen::Vector3d::UnitX());
+  Rz  = Eigen::AngleAxis<double>(theta2, Eigen::Vector3d::UnitZ());
+  Rx3 = Eigen::AngleAxis<double>(theta3, Eigen::Vector3d::UnitX());
 
-  Rx3.matrix() << 
-    1,0,0,0,
-    0,cos(theta3),-sin(theta3),0,
-    0,sin(theta3),cos(theta3),0,
-    0,0,0,1;
-
-  R = Rx3 * Rz * Rx1;
-  return R;
+  return Eigen::Affine3d(Rx3 * Rz * Rx1);
 }

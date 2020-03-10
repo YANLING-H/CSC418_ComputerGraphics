@@ -10,8 +10,6 @@ double line_search(
 {
   double sigma = max_step * 2;
   double E0 = f(z);
-  if (E0 <= 1e-5 || dz.isZero())
-    return 0.0;
   double E1;
 
   do {

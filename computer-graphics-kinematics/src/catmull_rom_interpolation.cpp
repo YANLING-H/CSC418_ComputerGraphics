@@ -5,6 +5,13 @@ Eigen::Vector3d catmull_rom_interpolation(
   const std::vector<std::pair<double, Eigen::Vector3d> > & keyframes,
   double t)
 {
+
+  if (keyframes.size() == 0)
+    return Eigen::Vector3d::Zero();
+
+  if (keyframes.size() == 1)
+    return keyframes[0].second;
+
   if (t <= keyframes.front().first)
     return keyframes.front().second;
   if (t >= keyframes.back().first)

@@ -10,15 +10,16 @@ void linear_blend_skinning(
 {
   U.resize(V.rows(), V.cols());
   for (int v=0; v<V.rows(); ++v) {
-    Eigen::Affine3d transform;
-    transform.matrix() << Eigen::Matrix4d::Zero();
+    Eigen::Vector3d v_rest = V.row(v).transpose();
+    Eigen::Vector3d vi = Eigen::Vector3d::Zero();
     for (int i=0; i<skeleton.size(); ++i) {
       if (skeleton[i].weight_index == -1)
         continue;
-      transform.matrix() += W(v, skeleton[i].weight_index) * T[i].matrix();
+      vi += W(v, skeleton[i].weight_index) * (T[i].linear() * v_rest + T[i].translation());
     }
-    if (transform.matrix().isZero())
-      transform = Eigen::Affine3d::Identity();
-    U.row(v) << (transform * V.row(v).transpose().homogeneous()).transpose();
+//    if (transform.matrix().isZero())
+//      transform = Eigen::Affine3d::Identity();
+//    U.row(v) << (transform * V.row(v).transpose().homogeneous()).transpose();
+    U.row(v) << vi.transpose();
   }
 }
