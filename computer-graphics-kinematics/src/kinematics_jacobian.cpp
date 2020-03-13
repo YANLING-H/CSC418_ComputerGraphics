@@ -19,11 +19,11 @@ void kinematics_jacobian(
     b2 << b[i];
     for (int j=0; j<skeleton.size(); ++j) {
       for (int theta_i=0; theta_i<3; ++theta_i) {
-        copy[i].xzx[theta_i] += h;
+        copy[j].xzx[theta_i] += h;
         auto x_plus_del = transformed_tips(copy, b2);
-        copy[i].xzx = skeleton[j].xzx;
+        copy[j].xzx[theta_i] = skeleton[j].xzx[theta_i];
 
-        J.block(i, 3*j + theta_i, 3, 1) << (x_plus_del - xi) / h;
+        J.block(3*i, 3*j + theta_i, 3, 1) << (x_plus_del - xi) / h;
       }
     }
   }

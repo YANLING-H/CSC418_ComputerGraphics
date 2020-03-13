@@ -17,9 +17,6 @@ void linear_blend_skinning(
         continue;
       vi += W(v, skeleton[i].weight_index) * (T[i].linear() * v_rest + T[i].translation());
     }
-//    if (transform.matrix().isZero())
-//      transform = Eigen::Affine3d::Identity();
-//    U.row(v) << (transform * V.row(v).transpose().homogeneous()).transpose();
     U.row(v) << vi.transpose();
   }
 }
