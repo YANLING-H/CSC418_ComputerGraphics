@@ -1,21 +1,33 @@
 #include "catmull_rom_interpolation.h"
 #include <Eigen/Dense>
+#include <cmath>
 
 Eigen::Vector3d catmull_rom_interpolation(
   const std::vector<std::pair<double, Eigen::Vector3d> > & keyframes,
   double t)
 {
 
+  // If loopback is enabled, animation will loopback to the
+  // beginning keyframe once t exceeds the last keyframe time.
+  // Will simply show last keyframe if false
+  // Not sure which behavior is intended, so just implemented both
+  bool loopback = true;
+
   if (keyframes.size() == 0)
     return Eigen::Vector3d::Zero();
 
   if (keyframes.size() == 1)
-    return keyframes[0].second;
-
-  if (t <= keyframes.front().first)
     return keyframes.front().second;
-  if (t >= keyframes.back().first)
-    return keyframes.back().second;
+
+  if (loopback) {
+    double interval = keyframes.back().first - keyframes.front().first;
+    t = keyframes.front().first + std::fmod(t, interval);
+  } else {
+    if (t <= keyframes.front().first)
+      return keyframes.front().second;
+    if (t >= keyframes.back().first)
+      return keyframes.back().second;
+  }
 
   double T;
   Eigen::Vector3d theta0, theta1, m0, m1;
