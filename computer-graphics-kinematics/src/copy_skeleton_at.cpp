@@ -4,8 +4,7 @@ Skeleton copy_skeleton_at(
   const Eigen::VectorXd & A)
 {
   Skeleton copy = skeleton;
-  for (int i=0; i<skeleton.size(); ++i) {
-    copy[i].xzx << A[3*i], A[3*i+1], A[3*i+2];
-  }
+  for (int i=0; i<skeleton.size(); ++i)
+    copy[i].xzx << A.segment(3*i, 3);
   return copy;
 }
