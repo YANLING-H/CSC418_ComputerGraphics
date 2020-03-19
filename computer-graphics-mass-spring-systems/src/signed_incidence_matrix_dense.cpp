@@ -6,8 +6,8 @@ void signed_incidence_matrix_dense(
   Eigen::MatrixXd & A)
 {
   A = Eigen::MatrixXd::Zero(E.rows(),n);
-  for (int e=0; e<E.rows(); ++e) {
-    A(e, E(e, 0)) += 1;
-    A(e, E(e, 1)) -= 1;
+  for (int i=0; i<E.rows(); ++i) {
+    A(i, E(i, 0)) = 1;
+    A(i, E(i, 1)) = -1;
   }
 }
