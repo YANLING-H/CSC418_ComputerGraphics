@@ -29,7 +29,7 @@ void fast_mass_springs_step_dense(
   {
     // Local step
     for (int i=0; i<E.rows(); ++i)
-      d.row(i) = r[i] * (Unext.row(E(i, 1)) - Unext.row(E(i, 0))).normalized();
+      d.row(i) = r[i] * (Unext.row(E(i, 0)) - Unext.row(E(i, 1))).normalized();
 
     // Global step
     Eigen::MatrixXd l = k * A.transpose() * d + y + w * C.transpose() * C * V;

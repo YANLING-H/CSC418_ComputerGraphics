@@ -17,7 +17,7 @@ bool fast_mass_springs_precomputation_dense(
 {
   r.resize(E.rows());
   for (int i=0; i<E.rows(); ++i)
-    r(i) = (V.row(E(i, 1)) - V.row(E(i, 0))).norm();
+    r(i) = (V.row(E(i, 0)) - V.row(E(i, 1))).norm();
 
   M = Eigen::MatrixXd::Zero(V.rows(), V.rows());
   for (int i=0; i<V.rows(); ++i)
